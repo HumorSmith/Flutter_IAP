@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'PayResult.dart';
 
-typedef void PayResultCallback(String signInfo);
+typedef void PayResultCallback(String recipeData);
 
 class Flutterpay {
   static PayResultCallback _payResultCallback;
