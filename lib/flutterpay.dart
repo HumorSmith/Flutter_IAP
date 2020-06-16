@@ -6,9 +6,10 @@ import 'package:flutter/services.dart';
 import 'PayResult.dart';
 
 typedef void PayResultCallback(String recipeData);
-
+typedef void PayInfoCallback(String desc,int price);
 class Flutterpay {
   static PayResultCallback _payResultCallback;
+  static PayInfoCallback _payInfoCallback;
   static const MethodChannel _channel = const MethodChannel('flutterpay');
 
   static void init() {
@@ -21,6 +22,13 @@ class Flutterpay {
           print("recipeData  callback = ${Flutterpay._payResultCallback}");
           if(Flutterpay._payResultCallback!=null){
             Flutterpay._payResultCallback(recipeData);
+          }
+          break;
+        case 'returnPayInfo':
+          var price = call.arguments['price'];
+          var desc = call.arguments['desc'];
+          if(Flutterpay._payInfoCallback!=null){
+            Flutterpay._payInfoCallback(desc,price);
           }
           break;
       }
@@ -43,7 +51,14 @@ class Flutterpay {
 
   static Future<void> setPayInfo(Map<String, dynamic> payInfo) async {
     await _channel.invokeMethod(
-        'setPayInfo', {'productId': 'com.ifreedomer.timenote.month'});
+        'setPayInfo', payInfo);
+  }
+
+
+  static Future<void> getPayInfo(PayInfoCallback payInfoCallback) async {
+    _payInfoCallback = payInfoCallback;
+    await _channel.invokeMethod(
+        'getPayInfo');
   }
 
   static Future<void> pay(PayResultCallback payResultCallback) async {

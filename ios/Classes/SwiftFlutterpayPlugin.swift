@@ -45,7 +45,28 @@ public class SwiftFlutterpayPlugin: NSObject, FlutterPlugin {
         }
       }
         break;
-    default:
+     case "getPayInfo":
+        SwiftyStoreKit.retrieveProductsInfo([mProductionId]) { result in
+            if let product = result.retrievedProducts.first {
+              let priceString = product.localizedPrice!
+              print("Product: \(product.localizedDescription), price: \(priceString)")
+              var parameters = Dictionary<String, String>();
+              parameters["desc"] = product.localizedDescription;
+              parameters["price"] = priceString;
+              SwiftFlutterpayPlugin.channel!.invokeMethod("returnPayInfo", arguments: parameters);
+                  // your code here
+
+                
+            }
+            else if let invalidProductId = result.invalidProductIDs.first {
+              print("Invalid product identifier: \(invalidProductId)")
+            }
+            else {
+              print("Error: \(result.error)")
+            }
+          }
+        break;
+     default:
         break;
     }
     result("iOS " + UIDevice.current.systemVersion)

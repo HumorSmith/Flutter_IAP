@@ -38,7 +38,16 @@ class _MyAppState extends State<MyApp> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
+    Flutterpay.setPayInfo({'productId':'com.ifreedomer.timenote.forever'});
+    Flutterpay.getPayInfo((desc, price) {
+      print("getPayInfo desc = ${desc}  price = ${price}");
+    });
+
+
     setState(() {
+
+
+
       _platformVersion = platformVersion;
     });
   }
