@@ -66,11 +66,12 @@ class Flutterpay {
     await _channel.invokeMethod('pay');
   }
 
-  static Future<PayResult> verifyPay(
+//  'https://pay.ifreedomer.com/pay/verifyApplePay'
+  static Future<PayResult> verifyPay(String url,
       String openId, String productId, String recipeData) async {
     var dio = new Dio();
 
-    var response =await dio.post('https://pay.ifreedomer.com/pay/verifyApplePay', queryParameters: {
+    var response =await dio.post(url, queryParameters: {
       'openId': openId,
       'productId': 4,
       'recipeData': recipeData
@@ -79,7 +80,10 @@ class Flutterpay {
         validateStatus: (status) { return status < 500; }
     ));
     print("response = ${response.statusCode}  data = ${response.data.toString()}");
-    return new PayResult();
+    var payResult = PayResult();
+    payResult.state = response.data['data'];
+    payResult.message = response.data['message'];
+    return  payResult;
 
   }
 }
