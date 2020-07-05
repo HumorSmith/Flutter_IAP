@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 
 import 'PayResult.dart';
 
 typedef void PayResultCallback(String recipeData);
-typedef void PayInfoCallback(String desc,int price);
+typedef void PayInfoCallback(String desc, int price);
+
 class Flutterpay {
   static PayResultCallback _payResultCallback;
   static PayInfoCallback _payInfoCallback;
@@ -20,15 +23,15 @@ class Flutterpay {
         case 'returnPayResult':
           var recipeData = call.arguments['recipeData'];
           print("recipeData  callback = ${Flutterpay._payResultCallback}");
-          if(Flutterpay._payResultCallback!=null){
+          if (Flutterpay._payResultCallback != null) {
             Flutterpay._payResultCallback(recipeData);
           }
           break;
         case 'returnPayInfo':
           var price = call.arguments['price'];
           var desc = call.arguments['desc'];
-          if(Flutterpay._payInfoCallback!=null){
-            Flutterpay._payInfoCallback(desc,price);
+          if (Flutterpay._payInfoCallback != null) {
+            Flutterpay._payInfoCallback(desc, price);
           }
           break;
       }
@@ -50,15 +53,12 @@ class Flutterpay {
   }
 
   static Future<void> setPayInfo(Map<String, dynamic> payInfo) async {
-    await _channel.invokeMethod(
-        'setPayInfo', payInfo);
+    await _channel.invokeMethod('setPayInfo', payInfo);
   }
-
 
   static Future<void> getPayInfo(PayInfoCallback payInfoCallback) async {
     _payInfoCallback = payInfoCallback;
-    await _channel.invokeMethod(
-        'getPayInfo');
+    await _channel.invokeMethod('getPayInfo');
   }
 
   static Future<void> pay(PayResultCallback payResultCallback) async {
@@ -67,23 +67,35 @@ class Flutterpay {
   }
 
 //  'https://pay.ifreedomer.com/pay/verifyApplePay'
-  static Future<PayResult> verifyPay(String url,
-      String openId, String productId, String recipeData) async {
+  static Future<PayResult> verifyPay(
+      String url, String openId, String productId, String recipeData) async {
     var dio = new Dio();
 
-    var response =await dio.post(url, queryParameters: {
-      'openId': openId,
-      'productId': 4,
-      'recipeData': recipeData
-    },options: Options(
-        followRedirects: false,
-        validateStatus: (status) { return status < 500; }
-    ));
-    print("response = ${response.statusCode}  data = ${response.data.toString()}");
+    dio.httpClientAdapter = DefaultHttpClientAdapter();
+    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (client) {
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) {
+        return true;
+      };
+    };
+
+    var response = await dio.post(url,
+        queryParameters: {
+          'openId': openId,
+          'productId': productId,
+          'recipeData': recipeData
+        },
+        options: Options(
+            followRedirects: false,
+            validateStatus: (status) {
+              return status < 500;
+            }));
+    print(
+        "response = ${response.statusCode}  data = ${response.data.toString()}");
     var payResult = PayResult();
     payResult.state = response.data['data'];
     payResult.message = response.data['message'];
-    return  payResult;
-
+    return payResult;
   }
 }
