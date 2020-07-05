@@ -69,7 +69,9 @@ class Flutterpay {
 //  'https://pay.ifreedomer.com/pay/verifyApplePay'
   static Future<PayResult> verifyPay(
       String url, String openId, String productId, String recipeData) async {
-    var dio = new Dio();
+    var dio = new Dio(BaseOptions(headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+    }));
 
     dio.httpClientAdapter = DefaultHttpClientAdapter();
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
