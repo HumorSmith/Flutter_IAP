@@ -70,9 +70,10 @@ class _MyAppState extends State<MyApp> {
               ),
               RaisedButton(
                 onPressed: (){
-                  Flutterpay.pay((recipeData){
-                    print("pay result = ${recipeData}");
-                    Flutterpay.verifyPay('haha', "productId", recipeData);
+                  Flutterpay.pay((recipeData) async {
+//                    print("pay result = ${recipeData}");
+                    var payResult = await Flutterpay.verifyPay('https://pay.ifreedomer.com/pay/verifyApplePay','haha', "productId", recipeData);
+                    print('payResult ${payResult}');
                   });
 
                 },
