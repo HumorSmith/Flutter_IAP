@@ -84,7 +84,7 @@ class Flutterpay {
 
     var response = await dio.post(url,
         data: {
-          'openId': openId,
+          'userId': openId,
           'productId': productId,
           'recipeData': recipeData
         },
